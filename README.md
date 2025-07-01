@@ -9,6 +9,7 @@ The setup was performed on host machine Windows 10/11 using Powershell Terminal 
 ## Table of Contents
 
 1. [Requirements](#requirements)
+1. [Quiqstart](#quiqstart)
 1. [SSH Login](#ssh-login)
 1. [Nginx Alternative Web Page](#nginx-alternative-web-page)
 1. [Git Configuration](#git-configuration)
@@ -30,7 +31,6 @@ The setup was performed on host machine Windows 10/11 using Powershell Terminal 
 ## Quiqstart
 
 - [SSH Login](#ssh-login)
-- [Repository Description](#repository-description)
 - [Nginx Alternative Web Page](#nginx-alternative-web-page)
 - [Git configuration](#git-configuration)
 
