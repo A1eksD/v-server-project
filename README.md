@@ -8,27 +8,27 @@ The setup was performed on host machine Windows 10/11 using Powershell Terminal 
 
 ## Table of Contents
 
-1. [Requirements](#requirements)
-1. [Quiqstart](#quiqstart)
-1. [SSH Login](#ssh-login)
-1. [Nginx Alternative Web Page](#nginx-alternative-web-page)
-1. [Git Configuration](#git-configuration)
+1. [Prerequisites](#prerequisites)
+1. [Quickstart](#Quickstart)
+1. [Usage](#usage)
+  - [SSH Login](#ssh-login)
+  - [Nginx Alternative Web Page](#nginx-alternative-web-page)
+  - [Git Configuration](#git-configuration)
 
 ---
 ---
 
-## Requirements
+## Prerequisites
 
 - Host machine - Windows 10/11 using Powershell Terminal
 - Remote machine Ubuntu 22.04.4 LTS (GNU/Linux 5.15.0-105-generic x86_64).
 - SSH
-- Nginx
 - Git and Github
 
 ---
 ---
 
-## Quiqstart
+## Quickstart
 
 - [SSH Login](#ssh-login)
 - [Nginx Alternative Web Page](#nginx-alternative-web-page)
@@ -40,19 +40,24 @@ The setup was performed on host machine Windows 10/11 using Powershell Terminal 
 
 ### To configure a ssh login with ssh-key pairs follow this steps
 
+
+#### On host machine generate a ssh-key pairs.
 ```powershell
-# On host machine generate a ssh-key pairs.
 ssh-keygen -t ed25519
+```
 
-# Provide a name for the ssh-key files:
+#### Provide a name for the ssh-key files:
 Generating public/private ed25519 key pair.
-Enter file in which to save the key (~/.ssh/id_ed25519):  ~/.ssh/<ssh_key_name>
+Enter file in which to save the key (~/.ssh/id_ed25519): 
+```powershell
+~/.ssh/<ssh_key_name>
+```
 
-# Provide no input for the passphrase
+#### Provide no input for the passphrase
 Enter passphrase (empty for no passphrase):
 Enter same passphrase again:
 
-# After that the output of generating ssh-key pairs should look like this.
+#### After that the output of generating ssh-key pairs should look like this.
 Your identification has been saved in <ssh_key_name>
 Your public key has been saved in <ssh_key_name>.pub
 The key fingerprint is:
@@ -70,10 +75,14 @@ The key''s randomart image is:
 |         E+o..+Bo|
 +----[SHA256]-----+
 
-# Add the public ssh-key to your v-server using the Powershell command:
-Get-Content $env:USERPROFILE\.ssh\<ssh_key_name>.pub | ssh <user>@<remoteserver> "cat >> .ssh/authorized_keys"
+Add the public ssh-key to your v-server using the Powershell command:
+Get-Content $env:
+```powershell
+USERPROFILE\.ssh\<ssh_key_name>.pub | ssh <user>@<remoteserver> "cat >> .ssh/authorized_keys"
+```
 
-# Test your ssh login using ssh-key:
+#### Test your ssh login using ssh-key:
+```powershell
 ssh -i ~/.ssh/<ssh_key> <user>@<remoteserver>
 ```
 
@@ -88,69 +97,90 @@ ssh -i ~/.ssh/<ssh_key> <user>@<remoteserver>
 > [!WARNING]
 > First make sure you configured and testet ssh login using ssh-key works, then follow this steps:
 
+
+#### Connect to your v-server using your provided username and password:
 ```bash
-# Connect to your v-server using your provided username and password:
 ssh <user>@<remoteserver>
+```
 
-# Open the sshd configuration file to write to:
+#### Open the sshd configuration file to write to:
+```bash
 sudo nano /etc/ssh/sshd_config
+```
 
-# Search for "PasswordAuthentication"
-# To disable tunneled clear text passwords, change to no here!
+#### Search for "PasswordAuthentication"
+#### To disable tunneled clear text passwords, change to no here!
 PasswordAuthentication no
-# Save the changes and close the editor
+#### Save the changes and close the editor
 
-# Restart ssh service:
+#### Restart ssh service:
+```bash
 sudo systemctl restart ssh
+```
 
-# To logout from your v-server just run in terminal:
+#### To logout from your v-server just run in terminal:
+```bash
 logout
+```
 
-# Try reconnect via password:
+#### Try reconnect via password:
+```bash
 ssh -o PubkeyAuthentication=no <username>@<remoteserver>
+```
 
-# For successful deactivated PasswordAuthentication the output should look something like this:
+#### For successful deactivated PasswordAuthentication the output should look something like this:
+```bash
 <user>@<remoteserver>: Permission denied (publickey).
-
 ```
 
 ### Setup a SSH-Config for more identities on your host machine, for an easer ssh-login
 
+#### Navigate to ssh folder on your host machine
 ```powershell
-# Navigate to ssh folder on your host machine
 cd ~/.ssh
+```
 
-# There should be a file named "config". If there is none, create one.
-# Append it this content:
+#### There should be a file named "config". If there is none, create one.
+#### Append it this content:
 Host <remoteserver>
     User <user>
     PreferredAuthentications publickey
     IdentityFile ~/.ssh/<ssh_key_name>
-# Save the changes.
+#### Save the changes.
 
-# With this configuration you can run this command to login to your v-server:
+#### With this configuration you can run this command to login to your v-server:
+```powershell
 ssh <remoteserver>
 ```
 
 > [!NOTE]
 > "Bad owner or permissions" error may happen on Windows when you run `ssh <remoteserver>` . To Fix it follow this steps:
 
+
+#### Navigate to the .ssh directory:
 ```powershell
-# Navigate to the .ssh directory:
 cd <path_to>\.ssh
+```
 
-# Check the current permissions of your <ssh_config_file>:
+#### Check the current permissions of your <ssh_config_file>:
+```powershell
 Get-Acl .\<ssh_config_file> | Format-List
+```
 
-# Remove the problematic permissions:
+#### Remove the problematic permissions:
+```powershell
 $acl = Get-Acl .\<ssh_config_file>
     $acl.Access | Where-Object { $_.IdentityReference -match "Authenticated Users" } | ForEach-Object {
         $acl.RemoveAccessRule($_)
     }
     Set-Acl .\<ssh_config_file> $acl
+```
 
-# Ensure only the user has permissions:
+#### Ensure only the user has permissions:
+```powershell
 icacls .\<shh_config_file> /inheritance:r
+```
+```powershell
 icacls .\<shh_config_file> /grant:r "$($env:USERNAME):(F)"
 ```
 
@@ -161,21 +191,24 @@ icacls .\<shh_config_file> /grant:r "$($env:USERNAME):(F)"
 
 ### Log into your v-server, and first update the packages by running this command
 
+
+#### Just selected some and moved on.
 ```bash
-# Just selected some and moved on.
 sudo apt update
-# A prompt could pop, asking you to select some services that need to be restarted after the update.
 ```
+#### A prompt could pop, asking you to select some services that need to be restarted after the update.
+
 
 ### After the update install nginx by running following commands
 
+#### The "-y" means to answer automatically "yes" on all input prompts that come along installation process.
 ```bash
-# The "-y" means to answer automatically "yes" on all input prompts that come along installation process.
 sudo apt install nginx -y
+```
 
-#  After installation finishes you can run this command to check if nginx is up and running. :
+####  After installation finishes you can run this command to check if nginx is up and running. :
+```bash
 sudo systemctl status nginx
-
 ```
 
 >[!TIP]
@@ -193,16 +226,20 @@ This file also contains interesting information about nginx that you may wanna c
 
 ### Add your own web page
 
+#### Created a directory were your web page file that you wanna server via web server should be. Example:
 ```bash
-# Created a directory were your web page file that you wanna server via web server should be. Example:
 sudo mkdir /var/www/alternatives
-# With ```mkdir``` you can create directories in your server.
+```
+#### With ```mkdir``` you can create directories in your server.
 
-# Then create the file itself. Example:
+#### Then create the file itself. Example:
+```bash
 sudo touch /var/www/alternatives/alternate-index.html
-# With ```touch``` you can create files in your server.
+```
+#### With ```touch``` you can create files in your server.
 
-# Open the file to write it content. Example:
+#### Open the file to write it content. Example:
+```bash
 sudo nano /var/www/alternatives/alternate-index.html
 ```
 
@@ -224,8 +261,8 @@ sudo nano /var/www/alternatives/alternate-index.html
 
 ### Add your own nginx configuration
 
+#### Create your own nginx configuration file. Example:
 ```bash
-# Create your own nginx configuration file. Example:
 sudo touch /etc/ngninx/sites-enabled/alternatives
 ```
 
@@ -251,11 +288,14 @@ server {
 }
 ```
 
- ```bash
- # Checked your nginx configuration for errors by running:
- nginx -t
 
- # Last, restart nginx service.
+#### Checked your nginx configuration for errors by running:
+ ```bash
+ nginx -t
+ ```
+
+#### Last, restart nginx service.
+  ```bash
  sudo systemctl restart nginx
  ```
 
@@ -271,9 +311,12 @@ Now if you access your `<remoteserver>` via the browser, you will not see your o
 ```bash
 sudo apt update
 sudo apt install git
-
-# After you installed git you need to configure it. That means only setting the git's global configuration user:
+```
+#### After you installed git you need to configure it. That means only setting the git's global configuration user:
+```bash
 git config --global user.name "<your_name>"
+```
+```bash
 git config --global user.email "<your_email>"
 ```
 
@@ -281,20 +324,26 @@ git config --global user.email "<your_email>"
 
 Basically almost the same as you did in [SSH Login](#ssh-login), but following Github Documentation.
 
+#### Generate SSH-Key Pairs, but this time on your v-server:
 ```bash
-# Generate SSH-Key Pairs, but this time on your v-server:
 ssh-keygen -t ed25519 -C "<your_email>"
-# >[!Note]: here give your Github Account email for <your_email>
+```
+#### >[!Note]: here give your Github Account email for <your_email>
 
-# Starte the ssh-agent in the background:
+#### Starte the ssh-agent in the background:
+```bash
 eval "$(ssh-agent -s)"
     Agent pid 20664
+```
 
-#  Add your SSH private key to the ssh-agent:
+####  Add your SSH private key to the ssh-agent:
+```bash
 ssh-add ~/.ssh/<ssh_key_file_name>
     Identity added: /path_to/.ssh/<ssh_key_file_name> (your_email)
+```
 
-# Copy the SSH public key to your clipboard.
+#### Copy the SSH public key to your clipboard.
+```bash
 cat ~/.ssh/<ssh_key_file_name>.pub
 ```
 
